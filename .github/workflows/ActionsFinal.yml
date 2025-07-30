@@ -1,10 +1,10 @@
-name:  Actions TestNG
+name: Actions TestNG with Email
 
 on:
-  push:                          # Trigger on code push
+  push:
   schedule:
-    - cron: '30 6 * * *'         # Runs at 12:00 PM IST daily (UTC +5:30)
-  workflow_dispatch:            # Allow manual run from GitHub UI
+    - cron: '30 6 * * *'  # Runs daily at 12:00 PM IST
+  workflow_dispatch:
 
 jobs:
   test:
@@ -18,7 +18,60 @@ jobs:
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
-          java-version: '17'        # or '11' or your required version
+          java-version: '17'
 
       - name: Build and Run Tests with Maven
         run: mvn clean test
+
+      - name: Zip TestNG Report
+        run: |
+          if [ -d "test-output" ]; then
+            zip -r test-report.zip test-output
+          else
+            echo "test-output directory not found!"
+          fi
+
+      - name: Upload Report Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test-report.zip
+
+  notify:
+    name: Send Email with Report (Always)
+    needs: test
+    if: always()     # <-- Runs whether test job passes or fails
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Report Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: test-report
+          path: .
+
+      - name: Send Email with Report
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: |
+            📦 TestNG Build ${{ needs.test.result == 'success' && '✅ PASSED' || '❌ FAILED' }} - GitHub Actions Report
+          to: your_email@example.com
+          from: GitHub Actions <your_email@example.com>
+          body: |
+            Hello,
+
+            The GitHub Actions TestNG build has completed.
+
+            🔗 Repository: ${{ github.repository }}
+            🔁 Commit: ${{ github.sha }}
+            🧪 Result: ${{ needs.test.result }}
+            🕒 Time: ${{ github.event.head_commit.timestamp }}
+
+            The TestNG report is attached.
+
+          attachments: test-report.zip
