@@ -20,7 +20,7 @@ public class Actionone {
 
 		WebDriver driver = new ChromeDriver(options);
 		driver.get("https://app.madtech.ai/");
-		Thread.sleep(4000);
+		Thread.sleep(2000);
 		driver.close();
 	}
 }
