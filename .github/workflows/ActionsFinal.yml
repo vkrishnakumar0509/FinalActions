@@ -1,9 +1,9 @@
-name: Actions TestNG with Email
+name: Actions TestNG
 
 on:
   push:
   schedule:
-    - cron: '30 6 * * *'  # Runs daily at 12:00 PM IST
+    - cron: '30 6 * * *'   # Runs at 12:00 PM IST daily
   workflow_dispatch:
 
 jobs:
@@ -23,60 +23,33 @@ jobs:
       - name: Build and Run Tests with Maven
         run: mvn clean test
 
-      - name: Zip TestNG Report
-        run: |
-          if [ -d "test-output" ]; then
-            zip -r test-report.zip test-output
-          else
-            echo "test-output directory not found!"
-          fi
-
-      - name: Rename to Bypass Gmail Filter
-        run: mv test-report.zip test-report.safe
-
-      - name: Upload Report Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-report
-          path: test-report.safe
-
   notify:
-    name: Send Email with Report
     needs: test
-    if: always()
     runs-on: ubuntu-latest
+    if: always()   # Send email whether test passed or failed
 
     steps:
-      - name: Download Report Artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: test-report
-          path: .
-
-      - name: Send Email with Report
+      - name: Send Notification Email
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp.gmail.com
-          server_port: 465
+          server_port: 587
           secure: true
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: |
-            📦 TestNG Build ${{ needs.test.result == 'success' && '✅ PASSED' || '❌ FAILED' }} - GitHub Actions
-          to: avkkumar1998@gmail.com
-          from: GitHub Actions <your_email@example.com>
+          username: ${{ secrets.SMTP_USERNAME }}     # e.g., your Gmail address
+          password: ${{ secrets.SMTP_PASSWORD }}     # App password
+          subject: GitHub Actions Test Report - ${{ needs.test.result }}
+          to: avkkumar1998@gmail.com             # replace with your actual email
+          from: GitHub Actions <${{ secrets.SMTP_USERNAME }}>
           body: |
-            Hello,
+            Hello Team,
 
-            The GitHub Actions TestNG build has completed.
+            The Sanity testing has been completed.
 
-            🔗 Repository: ${{ github.repository }}
-            🔁 Commit: ${{ github.sha }}
-            🧪 Result: ${{ needs.test.result }}
-            🕒 Time: ${{ github.event.head_commit.timestamp }}
-            📂 Report: test-report.safe (rename to .zip to open)
+            📄 **Status:** ${{ needs.test.result }}
+            
+            🔁 **Commit:** ${{ github.sha }}
+            
+            🕒 **Time:** ${{ github.event.head_commit.timestamp }}
 
-            View full logs here:
-            👉 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-
-          attachments: test-report.safe
+            Regards,  
+            QA Team
