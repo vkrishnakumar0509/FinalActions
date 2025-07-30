@@ -60,7 +60,7 @@ jobs:
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: |
             📦 TestNG Build ${{ needs.test.result == 'success' && '✅ PASSED' || '❌ FAILED' }} - GitHub Actions Report
-          to: your_email@example.com
+          to: avkkumar1998@gmail.com
           from: GitHub Actions <your_email@example.com>
           body: |
             Hello,
