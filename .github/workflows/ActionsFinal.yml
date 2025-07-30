@@ -31,16 +31,19 @@ jobs:
             echo "test-output directory not found!"
           fi
 
+      - name: Rename to Bypass Gmail Filter
+        run: mv test-report.zip test-report.safe
+
       - name: Upload Report Artifact
         uses: actions/upload-artifact@v4
         with:
           name: test-report
-          path: test-report.zip
+          path: test-report.safe
 
   notify:
-    name: Send Email with Report (Always)
+    name: Send Email with Report
     needs: test
-    if: always()     # <-- Runs whether test job passes or fails
+    if: always()
     runs-on: ubuntu-latest
 
     steps:
@@ -59,7 +62,7 @@ jobs:
           username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: |
-            📦 TestNG Build ${{ needs.test.result == 'success' && '✅ PASSED' || '❌ FAILED' }} - GitHub Actions Report
+            📦 TestNG Build ${{ needs.test.result == 'success' && '✅ PASSED' || '❌ FAILED' }} - GitHub Actions
           to: avkkumar1998@gmail.com
           from: GitHub Actions <your_email@example.com>
           body: |
@@ -71,7 +74,9 @@ jobs:
             🔁 Commit: ${{ github.sha }}
             🧪 Result: ${{ needs.test.result }}
             🕒 Time: ${{ github.event.head_commit.timestamp }}
+            📂 Report: test-report.safe (rename to .zip to open)
 
-            The TestNG report is attached.
+            View full logs here:
+            👉 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
-          attachments: test-report.zip
+          attachments: test-report.safe
