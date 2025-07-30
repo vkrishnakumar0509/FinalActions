@@ -34,7 +34,7 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 587
-          secure: true
+          secure: false
           username: ${{ secrets.SMTP_USERNAME }}     # e.g., your Gmail address
           password: ${{ secrets.SMTP_PASSWORD }}     # App password
           subject: GitHub Actions Test Report - ${{ needs.test.result }}
