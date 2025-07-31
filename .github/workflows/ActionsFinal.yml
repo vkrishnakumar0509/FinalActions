@@ -35,38 +35,39 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 587
           secure: false
-          username: ${{ secrets.SMTP_USERNAME }}     # e.g., your Gmail address
-          password: ${{ secrets.SMTP_PASSWORD }}     # App password
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
           subject: GitHub Actions Test Report - ${{ needs.test.result }}
-          to: avkkumar1998@gmail.com             # replace with your actual email
+          to: avkkumar1998@gmail.com
           from: GitHub Actions <${{ secrets.SMTP_USERNAME }}>
+          content_type: text/html
           body: |
-             <html>
-                <body style="font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; line-height: 1.6;">
+            <html>
+              <body style="font-family: 'Segoe UI', Tahoma, sans-serif; color: #333; line-height: 1.6;">
                 <h2 style="color: #2e6c80;">✅ Sanity Test Report</h2>
-      
+
                 <p>👋 Hello Team,</p>
-      
+
                 <p>The scheduled <strong>Sanity Test Suite</strong> has just been completed via GitHub Actions CI.</p>
-      
-              <table style="border-collapse: collapse; width: 100%; max-width: 600px; margin-top: 15px;">
-              <tr style="background-color: #f2f2f2;">
-                <td style="padding: 10px; border: 1px solid #ccc;">📄 <strong>Status</strong></td>
-                <td style="padding: 10px; border: 1px solid #ccc;">${{ needs.test.result }}</td>
-              </tr>
-              <tr>
-                <td style="padding: 10px; border: 1px solid #ccc;">🔁 <strong>Commit SHA</strong></td>
-                <td style="padding: 10px; border: 1px solid #ccc;">${{ github.sha }}</td>
-              </tr>
-              <tr style="background-color: #f2f2f2;">
-                <td style="padding: 10px; border: 1px solid #ccc;">🕒 <strong>Triggered At</strong></td>
-                <td style="padding: 10px; border: 1px solid #ccc;">${{ github.event.head_commit.timestamp }}</td>
-              </tr>
-              </table>
-      
-              <p style="margin-top: 20px;">📌 Please review the results and proceed accordingly.</p>
-      
-              <p style="margin-top: 25px;">🙌 Thanks & Regards,<br>
-              <strong>QA Team</strong></p>
+
+                <table style="border-collapse: collapse; width: 100%; max-width: 600px; margin-top: 15px;">
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="padding: 10px; border: 1px solid #ccc;">📄 <strong>Status</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">${{ needs.test.result }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 10px; border: 1px solid #ccc;">🔁 <strong>Commit SHA</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">${{ github.sha }}</td>
+                  </tr>
+                  <tr style="background-color: #f2f2f2;">
+                    <td style="padding: 10px; border: 1px solid #ccc;">🕒 <strong>Triggered At</strong></td>
+                    <td style="padding: 10px; border: 1px solid #ccc;">${{ github.event.head_commit.timestamp }}</td>
+                  </tr>
+                </table>
+
+                <p style="margin-top: 20px;">📌 Please review the results and proceed accordingly.</p>
+
+                <p style="margin-top: 25px;">🙌 Thanks & Regards,<br>
+                <strong>QA Team</strong></p>
               </body>
-              </html>
+            </html>
